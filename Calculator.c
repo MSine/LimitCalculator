@@ -3,9 +3,10 @@
 #include<ctype.h>
 #include<stdlib.h>
 
-#define L 6     //Lenght
+#define L 6     //Polynom Lenght
 #define TL 30   //Term Lenght
 
+//Predifined polyomial coefficients of Taylor Series version of certain functions
 const double coeffSin[L] = {0, 1, 0, -1/6, 0, 1/120};
 const double coeffSinh[L] = {0, 1, 0, 1/6, 0, 1/120};
 const double coeffCos[L] = {1, 0, -1/2, 0, 1/24, 0};
@@ -34,11 +35,13 @@ int main() {
     double sol = 0.;
     int remXDiv = 0;        //Remaining x divided for division
 
-    for (int c = 0; c < L; c++)     //Initializing poly as y^1
-        poly.coeff[c] = 0.;
-    poly.coeff[1] = 1.;
 
     while (1) {
+        
+        for (int c = 0; c < L; c++)     //Initializing poly as y^1
+            poly.coeff[c] = 0.;
+        poly.coeff[1] = 1.;
+        
         printf("\nEnter the problem : ");
         gets(poly.term);
 
@@ -48,7 +51,7 @@ int main() {
         }
         if (!strcmp("Help", poly.term) || !strcmp("help", poly.term)) {
             printf("+ : Addition\n- : Substraction\n* : Multiplication\n/ : Division\n^ : Power\n\n");
-            printf("Usable functions :\nSin(x)\nSinh(x)\nCos(x)\nCosh(x)\nTan(x)\nTanh(x)\nExp(x)");
+            printf("Usable functions :\nSin(x)\nSinh(x)\nCos(x)\nCosh(x)\nTan(x)\nTanh(x)\nExp(x)\n");
             continue;
         }
         if (solveToPoly(&poly, &remXDiv) == 1)
@@ -56,7 +59,7 @@ int main() {
 
         //Check if there is any x or 1/x factors as they would instantly make solution 0 or infinite 
         for (int c = 0; c < L; c++) {
-            if (poly.coeff[c] != 0) {       //Find the smallest a in x^a
+            if (poly.coeff[c] != 0) {       //Find the smallest a in x^a other than 0
                 sol = poly.coeff[c];
                 if (c < remXDiv)            //Check if the smallest a in x^a is smaller than the smallest b in 1/x^b
                     isInfinite = 1;
@@ -93,16 +96,16 @@ int solveToPoly(polynomial *poly, int *remXDiv) {
     double coeffTemp[L] = {0.};
     double coeffRes[L] = {poly->coeff[0]};   //Coefficients of result polynome
     double coeffLast[L] = {0.};              //Coefficients of last used polynome
+    
     for (int c = 0; c < L; c++) {
-        coeffTemp[c] = 0.;
         coeffLast[c] = coeffIns[c];
-        coeffRes[c] += coeffIns[c];
+        coeffRes[c] += poly->coeff[0] * coeffIns[c];    //Add b*y^1 to result
     }
 
-    for (int t = 2; t < L; t++) {                       //Term counter of first polynome, x^t, 0 gives back {k, 0, 0, 0, 0, 0}, 1 gives back original coefficients
+    for (int t = 2; t < L; t++) {                       //Term counter of first polynome, y^t, 0 gives back {k, 0, 0, 0, 0, 0}, 1 gives back original coefficients
         for (int tc1 = 0; tc1 < L; tc1++) {             //First term counter of second polynome
             for (int tc2 = 0; tc1 + tc2 < L; tc2++) {   //Second term counter of second polynome
-                coeffTemp[tc1 + tc2] += poly->coeff[t] * coeffLast[tc1] * coeffIns[tc2];    //Multiply coefficients and find sum of each term based on x^a
+                coeffTemp[tc1 + tc2] += poly->coeff[t] * coeffLast[tc1] * coeffIns[tc2];    //Multiply coefficients and find sum of each term based on y^a
             }
         }
         for (int c = 0; c < L; c++) {
